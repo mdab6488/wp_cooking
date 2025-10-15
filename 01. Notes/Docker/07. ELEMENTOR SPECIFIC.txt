@@ -1,0 +1,11 @@
+# ======================
+# ELEMENTOR SPECIFIC
+# ======================
+# Flush Elementor CSS
+docker exec wordpress wp elementor flush-css --allow-root
+
+# Disable safe mode
+docker exec wordpress wp option update elementor_safe_mode 0 --allow-root
+
+# Replace URLs (if domain changed)
+# docker exec wordpress wp search-replace 'oldurl.com' 'newurl.com' --allow-root

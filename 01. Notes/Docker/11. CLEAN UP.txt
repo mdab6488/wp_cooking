@@ -1,0 +1,16 @@
+# ======================
+# CLEAN UP
+# ======================
+# Remove stopped containers
+docker compose down
+
+# Remove volumes (WARNING: deletes data!)
+# docker compose down -v
+
+# Remove unused images
+docker image prune -a
+
+# Remove everything and start fresh
+# docker compose down -v
+# docker system prune -a
+# docker compose up -d --build

@@ -1,0 +1,14 @@
+# ======================
+# CLEAR ALL CACHES
+# ======================
+# WordPress cache
+docker exec wordpress wp cache flush --allow-root
+
+# Redis cache
+docker exec redis redis-cli FLUSHALL
+
+# Elementor cache
+docker exec wordpress wp elementor flush-css --allow-root
+
+# OPcache (restart PHP-FPM/Apache)
+docker compose restart wordpress

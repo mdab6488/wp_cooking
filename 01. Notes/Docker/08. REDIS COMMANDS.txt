@@ -1,0 +1,12 @@
+# ======================
+# REDIS COMMANDS
+# ======================
+# Connect to Redis
+docker exec -it redis redis-cli
+
+# Inside redis-cli:
+# PING                  # Test connection
+# FLUSHALL              # Clear everything
+# INFO                  # Show statistics
+# KEYS *                # List all keys
+# exit                  # Exit redis-cli

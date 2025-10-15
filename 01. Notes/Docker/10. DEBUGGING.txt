@@ -1,0 +1,31 @@
+# ======================
+# DEBUGGING
+# ======================
+# Enter WordPress container
+docker exec -it wordpress bash
+
+# Inside container, check Apache config:
+# apache2ctl -t          # Test config
+# apache2ctl -M          # List loaded modules
+# cat /etc/apache2/conf-available/performance.conf
+
+# Check PHP-FPM status (if using FPM)
+# ps aux | grep php
+
+# Check disk space
+docker exec wordpress df -h
+
+# Check memory usage
+docker stats --no-stream
+
+# Test database connection
+mysql -h db -u mdab6488 -pVprDxn1hpahbwJ abcooking -e "SELECT 1;"
+
+# Check if WordPress can connect
+php -r "
+\$db = new mysqli('db', 'mdab6488', 'VprDxn1hpahbwJ', 'abcooking', 3306);
+if (\$db->connect_error) {
+    die('Connection failed: ' . \$db->connect_error);
+}
+echo 'Connected successfully';
+"

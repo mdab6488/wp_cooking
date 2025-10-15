@@ -1,0 +1,23 @@
+# ======================
+# TROUBLESHOOTING ELEMENTOR
+# ======================
+# 1. Clear everything
+docker exec wordpress wp cache flush --allow-root
+docker exec redis redis-cli FLUSHALL
+docker exec wordpress wp elementor flush-css --allow-root
+
+# 2. Check headers
+curl -I http://localhost/wp-admin/ | grep X-Frame
+
+# 3. Verify PHP limits
+docker exec wordpress php -r "echo ini_get('memory_limit').PHP_EOL;"
+docker exec wordpress php -r "echo ini_get('max_execution_time').PHP_EOL;"
+docker exec wordpress php -r "echo ini_get('max_input_vars').PHP_EOL;"
+
+# 4. Fix permissions
+docker exec wordpress chown -R www-data:www-data /var/www/html
+docker exec wordpress find /var/www/html -type d -exec chmod 755 {} \;
+docker exec wordpress find /var/www/html -type f -exec chmod 644 {} \;
+
+# 5. Restart everything
+docker compose restart

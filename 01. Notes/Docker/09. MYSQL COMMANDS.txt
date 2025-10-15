@@ -1,0 +1,16 @@
+# ======================
+# MYSQL COMMANDS
+# ======================
+# Connect to MySQL
+docker exec -it db mysql -u mdab6488 -pVprDxn1hpahbwJ abcooking
+
+# Inside MySQL:
+# SHOW TABLES;
+# SELECT * FROM wp_options WHERE option_name LIKE '%elementor%';
+# exit
+
+# Backup database
+docker exec db mysqldump -u mdab6488 -pVprDxn1hpahbwJ abcooking > backup-$(date +%Y%m%d).sql
+
+# Restore database
+docker exec -i db mysql -u mdab6488 -pVprDxn1hpahbwJ abcooking < backup.sql

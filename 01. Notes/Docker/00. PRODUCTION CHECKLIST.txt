@@ -1,0 +1,11 @@
+# ======================
+# PRODUCTION CHECKLIST
+# ======================
+# Before going live:
+# 1. Disable debug mode in compose.yaml (WP_DEBUG: false)
+# 2. Change all default passwords
+# 3. Set up SSL certificates
+# 4. Configure backups
+# 5. Set up monitoring
+# 6. Review security settings
+# 7. Test restore procedure

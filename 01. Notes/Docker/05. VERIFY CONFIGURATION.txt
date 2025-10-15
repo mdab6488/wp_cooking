@@ -1,0 +1,14 @@
+# ======================
+# VERIFY CONFIGURATION
+# ======================
+# Check PHP settings
+docker exec wordpress php -i | grep -E "memory_limit|max_execution_time|max_input_vars|upload_max_filesize"
+
+# Check headers
+curl -I http://localhost | grep -i "x-frame"
+
+# Check Redis connection
+docker exec redis redis-cli ping
+
+# Check MySQL connection
+docker exec db mysqladmin ping -h localhost -u mdab6488 -pVprDxn1hpahbwJ

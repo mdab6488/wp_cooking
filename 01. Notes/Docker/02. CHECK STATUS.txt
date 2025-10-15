@@ -1,0 +1,9 @@
+# ======================
+# CHECK STATUS
+# ======================
+# All services status
+docker compose ps
+
+# Check logs
+docker compose logs -f wordpress
+docker compose logs --tail=50 wordpress

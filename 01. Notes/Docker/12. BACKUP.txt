@@ -1,0 +1,16 @@
+# ======================
+# BACKUP
+# ======================
+# Backup entire WordPress volume
+docker run --rm \
+    -v wordpress_core:/data \
+    -v $(pwd):/backup \
+    alpine tar czf /backup/wordpress-backup-$(date +%Y%m%d).tar.gz /data
+
+docker run --rm \
+  -v myproject_db_data:/source \
+  -v $(pwd):/backup \
+  alpine tar czf /backup/db_backup.tar.gz -C /source .
+
+# Restore WordPress volume
+# docker run --rm -v wordpress_core:/data -v $(pwd):/backup alpine tar xzf /backup/wordpress-backup-YYYYMMDD.tar.gz -C /

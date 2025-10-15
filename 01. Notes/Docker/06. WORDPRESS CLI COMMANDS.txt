@@ -1,0 +1,20 @@
+===================
+# WORDPRESS CLI COMMANDS
+# ======================
+# List all plugins
+docker exec wordpress wp plugin list --allow-root
+
+# Activate Elementor
+docker exec wordpress wp plugin activate elementor elementor-pro --allow-root
+
+# Update WordPress core
+docker exec wordpress wp core update --allow-root
+
+# Check database
+docker exec wordpress wp db check --allow-root
+
+# Optimize database
+docker exec wordpress wp db optimize --allow-root
+
+# Fix file permissions via WP-CLI
+docker exec wordpress wp cli core verify-checksums --allow-root

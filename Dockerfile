@@ -17,13 +17,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     less \
     mariadb-client \
+    cron \
     --no-install-recommends
 
 # Install PHP extensions
 RUN pecl install imagick redis && \
     docker-php-ext-enable imagick redis && \
     docker-php-ext-configure gd --with-webp --with-jpeg && \
-    docker-php-ext-install gd zip mysqli pdo_mysql
+    docker-php-ext-install gd zip mysqli pdo_mysql opcache
 
 # Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -42,42 +43,6 @@ RUN mkdir -p /var/www/.opcache && \
     mkdir -p /var/www/html/wp-content/themes && \
     mkdir -p /var/log/php && \
     chown -R www-data:www-data /var/www/.opcache /var/www/html/wp-content /var/log/php
-
-# Set recommended PHP.ini settings for WordPress
-RUN { \
-    echo 'opcache.enable=1'; \
-    echo 'opcache.memory_consumption=256'; \
-    echo 'opcache.interned_strings_buffer=16'; \
-    echo 'opcache.max_accelerated_files=10000'; \
-    echo 'opcache.revalidate_freq=2'; \
-    echo 'opcache.fast_shutdown=1'; \
-    echo 'opcache.file_cache=/var/www/.opcache'; \
-    echo 'opcache.validate_timestamps=0'; \
-    } > /usr/local/etc/php/conf.d/opcache-recommended.ini
-
-# WordPress-specific PHP settings
-RUN { \
-    echo 'memory_limit=2000M'; \
-    echo 'upload_max_filesize=2000M'; \
-    echo 'post_max_size=2000M'; \
-    echo 'max_execution_time=300'; \
-    echo 'max_input_vars=10000'; \
-    echo 'max_input_time=600'; \
-    echo 'file_uploads=On'; \
-    echo 'allow_url_fopen=Off'; \
-    echo 'display_errors=Off'; \
-    echo 'log_errors=On'; \
-    echo 'error_log=/var/log/php/error.log'; \
-    echo 'session.cookie_httponly=On'; \
-    echo 'session.cookie_secure=On'; \
-    echo 'session.use_strict_mode=On'; \
-    } > /usr/local/etc/php/conf.d/wordpress.ini
-
-# Redis configuration for WordPress
-RUN { \
-    echo 'session.save_handler=redis'; \
-    echo 'session.save_path="tcp://redis:6379"'; \
-    } > /usr/local/etc/php/conf.d/redis-session.ini
 
 # Apache optimization and security
 RUN a2enmod expires headers rewrite deflate ssl http2 && \
@@ -113,8 +78,9 @@ RUN a2enmod expires headers rewrite deflate ssl http2 && \
     echo '</IfModule>'; \
     echo ''; \
     echo '<IfModule mod_headers.c>'; \
+    echo '  # CRITICAL FIX: Use SAMEORIGIN instead of DENY for Elementor'; \
+    echo '  Header always set X-Frame-Options SAMEORIGIN'; \
     echo '  Header always set X-Content-Type-Options nosniff'; \
-    echo '  Header always set X-Frame-Options DENY'; \
     echo '  Header always set X-XSS-Protection "1; mode=block"'; \
     echo '  Header always set Referrer-Policy "strict-origin-when-cross-origin"'; \
     echo '  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"'; \
@@ -129,8 +95,6 @@ RUN { \
     echo 'ServerTokens Prod'; \
     echo 'ServerSignature Off'; \
     echo 'TraceEnable Off'; \
-    echo 'Header always append X-Frame-Options SAMEORIGIN'; \
-    echo 'Header always set X-Content-Type-Options nosniff'; \
     } >> /etc/apache2/conf-available/security.conf && \
     a2enconf security
 
@@ -151,20 +115,14 @@ RUN { \
     echo '    deny from all'; \
     echo '  </Files>'; \
     echo '</Directory>'; \
-    echo ''; \
-    echo '<Directory /var/www/html/wp-includes/>'; \
-    echo '  <Files *.php>'; \
-    echo '    deny from all'; \
-    echo '  </Files>'; \
-    echo '</Directory>'; \
     } > /etc/apache2/conf-available/wordpress-security.conf && \
     a2enconf wordpress-security
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy and set up the custom entrypoint script
-COPY ./sh/docker-entrypoint-custom.sh /usr/local/bin/
+# Copy custom entrypoint script
+COPY ./sh/docker-entrypoint-custom.sh /usr/local/bin/docker-entrypoint-custom.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint-custom.sh
 
 # Health check
@@ -174,6 +132,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
 # Expose port
 EXPOSE 80 443
 
-# Use the custom entrypoint (removed the duplicate ENTRYPOINT)
-ENTRYPOINT ["./sh/docker-entrypoint-custom.sh"]
+# Use custom entrypoint (correct path)
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint-custom.sh"]
 CMD ["apache2-foreground"]

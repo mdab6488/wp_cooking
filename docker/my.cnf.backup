@@ -1,0 +1,79 @@
+[mysqld]
+
+skip_ssl
+require_secure_transport = OFF
+
+# Basic Settings
+default_storage_engine = InnoDB
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Connection Settings
+max_connections = 200
+max_connect_errors = 1000
+wait_timeout = 28800
+interactive_timeout = 28800
+
+# Buffer Pool Settings (adjust based on available RAM)
+innodb_buffer_pool_size = 512M
+innodb_buffer_pool_instances = 4
+innodb_log_file_size = 128M
+innodb_log_buffer_size = 32M
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+
+# Query Cache (disabled in MySQL 8+, but kept for compatibility)
+# query_cache_type = 0
+# query_cache_size = 0
+
+# Thread Settings
+thread_cache_size = 50
+table_open_cache = 4000
+table_definition_cache = 2000
+
+# Temp Tables
+tmp_table_size = 128M
+max_heap_table_size = 128M
+
+# MyISAM Settings
+key_buffer_size = 32M
+myisam_sort_buffer_size = 64M
+
+# Sorting and Joins
+sort_buffer_size = 2M
+read_buffer_size = 1M
+read_rnd_buffer_size = 2M
+join_buffer_size = 2M
+
+# Network Settings
+max_allowed_packet = 256M
+net_buffer_length = 16K
+
+# Logging
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow-query.log
+long_query_time = 2
+log_queries_not_using_indexes = 0
+
+# Binary Logging (disable if not needed for replication)
+skip-log-bin
+# binlog_expire_logs_seconds = 604800
+
+# InnoDB Settings for WordPress
+innodb_file_per_table = 1
+innodb_flush_log_at_trx_commit = 2
+innodb_read_io_threads = 4
+innodb_write_io_threads = 4
+innodb_io_capacity = 2000
+innodb_io_capacity_max = 4000
+
+# Security
+local_infile = 0
+
+[mysql]
+default-character-set = utf8mb4
+
+[client]
+ssl-mode = DISABLED
+default-character-set = utf8mb4
+port = 3306

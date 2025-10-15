@@ -1,0 +1,11 @@
+# ======================
+# MONITORING
+# ======================
+# Real-time logs
+docker compose logs -f
+
+# Monitor resource usage
+docker stats
+
+# Check container health
+docker inspect wordpress | grep -A 10 Health

@@ -1,0 +1,10 @@
+# ======================
+# FIX PERMISSIONS
+# ======================
+# Host level (run from project directory)
+sudo chown -R 33:33 ./wp-content/{themes,plugins,uploads,ai1wm-backups}
+sudo chmod -R 755 ./wp-content
+
+# Container level
+docker exec wordpress chown -R www-data:www-data /var/www/html/wp-content
+docker exec wordpress chmod -R 755 /var/www/html/wp-content
