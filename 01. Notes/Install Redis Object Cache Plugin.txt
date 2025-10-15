@@ -1,0 +1,28 @@
+# Access WordPress container:
+docker exec -it wordpress bash
+
+# Install Redis cache plugin:
+wp plugin install redis-cache --activate --allow-root
+wp redis enable --allow-root
+
+IF GOT ERROR:
+
+# Error: Object cache could not be enabled. Redis server is unreachable: Connection refused [tcp://127.0.0.1:6379]
+# Install Redis (Debian/Ubuntu)
+apt-get update
+apt-get install -y redis-server
+
+# Start Redis
+service redis-server start
+
+# Test connection
+redis-cli ping
+# should reply with: PONG
+
+# Then run:
+wp redis enable --allow-root
+
+# Exit the container:
+exit
+
+

@@ -1,0 +1,109 @@
+services:
+    
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+    command: redis-server --appendonly yes
+
+  db:
+    image: mysql:8.4
+    restart: always
+    container_name: mysql_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: abcooking
+      MYSQL_USER: mdab6488
+      MYSQL_PASSWORD: VprDxn1hpahbwJ
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+      - ./docker/my.cnf:/etc/mysql/conf.d/my.cnf
+    # Add health check
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "mdab6488", "-pVprDxn1hpahbwJ"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    tmpfs:
+      - /tmp
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: mdab6488
+      PMA_PASSWORD: VprDxn1hpahbwJ
+    depends_on:
+      db:
+        condition: service_healthy
+
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wordpress
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: mdab6488
+      WORDPRESS_DB_PASSWORD: VprDxn1hpahbwJ
+      WORDPRESS_DB_NAME: abcooking
+      APACHE_RUN_USER: www-data
+      APACHE_RUN_GROUP: www-data
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_MEMORY_LIMIT', '1000M');
+        define('WP_MAX_MEMORY_LIMIT', '1000M');
+        define('FS_METHOD', 'direct');
+        define('CONCATENATE_SCRIPTS', false);
+        define('COMPRESS_SCRIPTS', false);
+        define('COMPRESS_CSS', false);
+        define('WP_CACHE', true);
+        // Add Redis configuration
+        define('WP_REDIS_HOST', 'redis');
+        define('WP_REDIS_PORT', 6379);
+        define('WP_REDIS_TIMEOUT', 1);
+        define('WP_REDIS_READ_TIMEOUT', 1);
+        define('WP_REDIS_DATABASE', 0);
+    volumes:
+      - wordpress_core:/var/www/html
+      - ./docker/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./wp-content/themes:/var/www/html/wp-content/themes:rw,Z
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins:rw,Z
+      - ./wp-content/uploads:/var/www/html/wp-content/uploads:rw,Z
+      - ./wp-content/ai1wm-backups:/var/www/html/wp-content/ai1wm-backups:rw,Z
+      - opcache:/var/www/.opcache
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    tmpfs:
+      - /var/www/html/wp-content/cache
+      - /tmp:rw,noexec,nosuid,size=100m
+
+volumes:
+  wordpress_core:
+  db:
+  opcache:
+  redis:

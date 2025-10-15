@@ -1,0 +1,24 @@
+WordPress → http://localhost:8000
+phpMyAdmin → http://localhost:8080
+MySQL exposed → localhost:3306
+
+docker-compose down
+docker compose up -d
+
+docker exec -it wordpress-1 bash
+
+# Check container resource usage
+docker stats
+
+# Check logs for errors
+docker-compose logs -f wordpress
+
+=====================================================
+# Check Redis status
+docker exec -it wordpress wp redis status --allow-root
+
+# Test Redis connection manually
+docker exec -it wordpress redis-cli -h redis -p 6379 ping
+
+Check container status:
+delegated

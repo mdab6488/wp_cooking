@@ -1,0 +1,9 @@
+wp-content/
+compose.yaml
+docker/
+    my.cnf
+    php.ini
+sh/
+    docker-entrypoint-custom.sh
+    fix-wp-permissions.sh
+    wsl_permission_fix.sh

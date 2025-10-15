@@ -1,0 +1,17 @@
+chmod +x wsl_permission_fix.sh
+./sh/wsl_permission_fix.sh
+
+Next steps:
+1. Run 'source ~/.bashrc' to load new aliases
+2. Run 'docker-compose up -d' to start your WordPress site
+3. Use 'wp-fix-perms' anytime you have permission issues
+4. If you created .wslconfig, restart WSL: 'wsl --shutdown' then reopen
+
+Common commands:
+  wp-up          - Start WordPress
+  wp-down        - Stop WordPress
+  wp-fix-perms   - Fix permissions
+  wp-logs        - View logs
+  wp-cli         - Run WP-CLI commands
+
+docker exec mysql_db mysqldump -u root -p VprDxn1hpahbwJ abcooking > wordpress_backup_$(date +%Y%m%d_%H%M%S).sql
