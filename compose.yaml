@@ -93,7 +93,7 @@ services:
       - wordpress_core:/var/www/html
       - ./docker/php.ini:/usr/local/etc/php/conf.d/custom-php.ini:ro
       - ./wp-content/themes:/var/www/html/wp-content/themes
-      - ./wp-content/plugins:/var/www/html/wp-content/plugins
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins:rw,Z
       - ./wp-content/uploads:/var/www/html/wp-content/uploads
       - ./wp-content/ai1wm-backups:/var/www/html/wp-content/ai1wm-backups
       - opcache:/var/www/.opcache
