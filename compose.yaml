@@ -1,13 +1,19 @@
+x-env-config: &env-config
+  env_file:
+    - .env
+
 services:
   redis:
     image: redis:alpine
     container_name: redis
     restart: always
     ports:
-      - "6379:6379"
+      - "${redis_port}:6379"
     volumes:
       - redis:/data
     command: redis-server --appendonly yes
+    networks:
+      - ${project_network}
     deploy:
       resources:
         limits:
@@ -20,13 +26,15 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: abcooking
-      MYSQL_USER: mdab6488
-      MYSQL_PASSWORD: VprDxn1hpahbwJ
-      MYSQL_ROOT_PASSWORD: rootpassword 
+      MYSQL_DATABASE: ${mysql_db}
+      MYSQL_USER: ${mysql_user}
+      MYSQL_PASSWORD: ${mysql_pass}
+      MYSQL_ROOT_PASSWORD: ${mysql_root_pass} 
     volumes:
       - db:/var/lib/mysql
       - ./docker/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    networks:
+      - ${project_network}
     healthcheck:
       test: ["CMD", "mysqladmin", "ping"]
       timeout: 5s
@@ -47,12 +55,12 @@ services:
     container_name: wordpress
     restart: always
     ports:
-      - "8080:80"
+      - "${wp_port}:80"
     environment:
       WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: mdab6488
-      WORDPRESS_DB_PASSWORD: VprDxn1hpahbwJ
-      WORDPRESS_DB_NAME: abcooking
+      WORDPRESS_DB_USER: ${wp_db_user}
+      WORDPRESS_DB_PASSWORD: ${wp_db_pass}
+      WORDPRESS_DB_NAME: ${wp_db_name}
       APACHE_RUN_USER: www-data
       APACHE_RUN_GROUP: www-data
       WORDPRESS_DB_SSL: "false"
@@ -102,6 +110,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    networks:
+      - ${project_network}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/wp-admin/install.php || exit 0"]  # Custom health check
       interval: 30s
@@ -115,7 +125,11 @@ services:
     tmpfs:
       - /var/www/html/wp-content/cache:rw,noexec,nosuid,size=1G
       - /tmp:rw,noexec,nosuid,size=500m
-      
+
+networks:
+  ab_cooking:
+    driver: bridge
+
 volumes:
   wordpress_core:
   db:
